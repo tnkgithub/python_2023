@@ -1,15 +1,18 @@
 #%%
 from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
+from scipy.spatial.distance import pdist
 import pandas as pd
 import matplotlib.pyplot as plt
 
-#%%
-df = pd.read_csv('./result_feature_pca/resnet_pca.csv', index_col=0)
-img_dir_path = '/home/b1019035/python/gra_study/imagesSub'
 
 #%%
-ward_euc = linkage(df, method='ward', metric='euclidean')
+df = pd.read_csv('./result_feature_pca/vit_mns.csv', index_col=0)
+#df = pd.read_csv('./result_feature_pca/vit_stds.csv', index_col=0)
+
+#%%
+pdist = pdist(df, metric='cosine')
+ward_euc = linkage(pdist, method='ward', metric='cosine')
 plt.figure(figsize=(20, 10), num=None, dpi=80, facecolor='w', edgecolor='k')
 dendrogram(ward_euc, labels=df.index, leaf_font_size=8)
 
@@ -61,5 +64,5 @@ host.legend(lines,
             loc='upper left')
 
 fig.show()
-fig.savefig('./result_cluster_vit/ward_euc_evaluate.png')
+fig.savefig('./result_cluster_vit/mns_ward_cos_evaluate.png')
 # %%

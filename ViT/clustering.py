@@ -8,7 +8,7 @@ import os
 import datetime
 
 #%%
-df = pd.read_csv('./result_feature_pca/resnet_pca.csv', index_col=0)
+df = pd.read_csv('./result_feature_pca/vit_mns.csv', index_col=0)
 img_dir_path = '/home/b1019035/python/gra_study/imagesSub'
 
 #%%
@@ -18,11 +18,11 @@ plt.figure(figsize=(20, 10), num=None, dpi=80, facecolor='w', edgecolor='k')
 dendrogram(ward_cos, labels=df.index, leaf_font_size=8)
 
 #%%
-bucket = [0] * 100 # クラスタ数、サイズが分からないので40としておく
+bucket = [0] * 1000 # クラスタ数、サイズが分からないので40としておく
 cluster_num = 0
 clusters_size = [0]
 
-fclusters = fcluster(ward_cos, 1.9, criterion='distance')
+fclusters = fcluster(ward_cos, 0.15, criterion='distance')
 
 # クラスターの数と各クラスターのサイズを求める
 for i in fclusters:
@@ -44,7 +44,7 @@ for i in range(len(fclusters)):
     cluster_list[fclusters[i]].append(img_path)
 
 #%%
-os.mkdir('./result_cluster_resnet')
+#os.mkdir('./result_cluster_resnet')
 
 #%%
 m = 10
@@ -64,5 +64,5 @@ for clust_no in range(1, cluster_num):
         plt.axis("off")
         plt.imshow(imgs[i])
 
-    plt.savefig(img_name)
+    plt.show()
 # %%
