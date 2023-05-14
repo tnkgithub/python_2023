@@ -4,7 +4,6 @@ import os
 from keras.preprocessing import image
 import numpy as np
 import pandas as pd
-import
 
 #%%
 model = vit.vit_b16(
