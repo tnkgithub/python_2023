@@ -64,5 +64,33 @@ host.legend(lines,
             loc='upper left')
 
 fig.show()
-fig.savefig('./result_cluster_vit/mns_ward_cos_evaluate.png')
+##fig.savefig('./result_cluster_vit/mns_ward_cos_evaluate.png')
+# %%
+# 適切なクラスター数を決定
+# zが最大のクラスター数を取得
+max_silhouette_coefficient = max(silhouette_coefficient)
+optimal_num_clusters = silhouette_coefficient.index(max_silhouette_coefficient) + 2
+print('Optimal number of clusters: {}'.format(optimal_num_clusters))
+
+# カリンスキー・ハラバス指数が最大のクラスター数を取得
+max_calinski_harabasz_index = max(calinski_harabasz_index)
+optimal_num_clusters = calinski_harabasz_index.index(max_calinski_harabasz_index) + 2
+print('Optimal number of clusters: {}'.format(optimal_num_clusters))
+
+# ダヴィス・ボルディン指数が最小のクラスター数を取得
+min_davies_bouldin_index = min(davies_bouldin_index)
+optimal_num_clusters = davies_bouldin_index.index(min_davies_bouldin_index) + 2
+print('Optimal number of clusters: {}'.format(optimal_num_clusters))
+
+# %%
+# シルエット数 + カリンスキー・ハラバス指数 - ダヴィス・ボルディン指数 が最大のクラスター数を取得
+max_score = 0
+optimal_num_clusters = 0
+for i in range(len(NUM_CLUSTERS_RANGE)):
+    score = silhouette_coefficient[i] + calinski_harabasz_index[i] - davies_bouldin_index[i]
+    if score > max_score:
+        max_score = score
+        optimal_num_clusters = i + 10
+print('Optimal number of clusters: {}'.format(optimal_num_clusters))
+
 # %%
