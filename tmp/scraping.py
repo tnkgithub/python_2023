@@ -30,7 +30,8 @@ for i in page_num:
 # %%
 # 最後のページ番号
 last_page = int(pages[-3])
-"""全ページのURLをリストに加える"""
+
+# 全ページのURLをリストに加える
 urls = []
 for i in range(1, last_page + 1):
     url = "http://archives.c.fun.ac.jp/fronts/index/postcards/page:{}".format(i)
@@ -41,7 +42,7 @@ for i in range(1, last_page + 1):
 
 # titles = []
 images = []
-"""画像とタイトルを取得"""
+# 画像とタイトルを取得
 for url in urls:
     # ページのリンクを呼び出す
     r = requests.get(url)
@@ -99,7 +100,7 @@ print(len(img_title))
 # os.mkdir("./image_postcard")
 
 
-"""画像を保存"""
+# 画像を保存
 for i in range(len(images)):
     # 画像urlを呼び出す
     r = requests.get(images[i])
