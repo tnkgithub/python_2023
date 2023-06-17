@@ -1,0 +1,6 @@
+# 以下のディレクトリを無視
+image_postcard/
+feature_resnet.csv
+resnet_pca.csv
+gapstat/
+__pycache__/
