@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import os
 
-from scipy.spatial.distance import euclidean
 from scipy.spatial.distance import cosine
 
 # %%
