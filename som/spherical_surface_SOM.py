@@ -12,121 +12,56 @@ df = df.values
 
 # %%
 # 測地ドームの作成
-# 1. 初期状態として球に内接する正２０面体を作成
-# 2. 多面体の各辺の中点をとる
-# 3. 各辺の中点を球面に接するように移動させる
-# 4. 移動した点を新たな頂点として多面体を作成
-# 5. 2. 3. 4. を繰り返し、頂点がデータ数より多くなったら終了
-
 import math
+import numpy as np
 
 
-def create_geodesic_dome(data, num_iterations):
-    # 初期状態として球に内接する正20面体を作成
-    vertices = create_icosahedron()
+def create_geodesic_dome(num_points):
+    vertices = np.array([[0.0, 0.0, 1.0], [0.0, 0.0, -1.0]])  # 北極点  # 南極点
+    golden_ratio = (1 + np.sqrt(5)) / 2
 
-    for _ in range(num_iterations):
-        # 多面体の各辺の中点を取得
-        midpoints = get_edge_midpoints(vertices)
+    for i in range(5):
+        latitude = np.arctan(1 / golden_ratio) * i  # 緯度
+        longitude_shift = np.pi * i / 5  # 経度シフト
 
-        # 各辺の中点を球面に接するように移動
-        vertices = move_points_to_sphere(midpoints)
+        for j in range(5):
+            longitude = 2 * np.pi * j / 5 + longitude_shift
+            x = np.cos(longitude) * np.cos(latitude)
+            y = np.sin(longitude) * np.cos(latitude)
+            z = np.sin(latitude)
+            vertices = np.vstack((vertices, [x, y, z]))
 
-        # 移動した点を新たな頂点として多面体を作成
-        vertices = create_polyhedron(vertices)
+    while len(vertices) < num_points:
+        new_vertices = []
 
-        # 頂点数がデータ数を超えたら終了
-        if len(vertices) > len(data):
-            break
+        for i in range(len(vertices)):
+            current_vertex = vertices[i]
+            next_vertex = vertices[(i + 1) % len(vertices)]
+            midpoint = (current_vertex + next_vertex) / 2
+            new_vertices.append(midpoint)
 
-    # データを頂点に格納
-    for i, point in enumerate(data):
-        if i >= len(vertices):
-            break
-        vertices[i] = point
+        vertices = np.vstack((vertices, new_vertices))
 
     return vertices
 
 
-def create_icosahedron():
-    phi = (1 + math.sqrt(5)) / 2  # 黄金比
-    vertices = [
-        (0, +1, +phi),
-        (0, +1, -phi),
-        (0, -1, +phi),
-        (0, -1, -phi),
-        (+1, +phi, 0),
-        (+1, -phi, 0),
-        (-1, +phi, 0),
-        (-1, -phi, 0),
-        (+phi, 0, +1),
-        (+phi, 0, -1),
-        (-phi, 0, +1),
-        (-phi, 0, -1),
-    ]
-    return vertices
+# 測地線ドームの頂点を生成
+num_points = df.shape[0]
+vertices = create_geodesic_dome(num_points)
+
+# %%
+print(vertices)
+
+som = np.expand_dims(vertices, axis=2)
+
+# %%
+print(som)
+
+# %%
+# マップの作成(3次元目に768次元のデータをランダムに割り当てる)
 
 
-def get_edge_midpoints(vertices):
-    midpoints = []
-    num_vertices = len(vertices)
-
-    for i in range(num_vertices):
-        vertex1 = vertices[i]
-        vertex2 = vertices[(i + 1) % num_vertices]
-        midpoint = (
-            (vertex1[0] + vertex2[0]) / 2,
-            (vertex1[1] + vertex2[1]) / 2,
-            (vertex1[2] + vertex2[2]) / 2,
-        )
-        midpoints.append(midpoint)
-
-    return midpoints
-
-
-def move_points_to_sphere(points):
-    radius = 1.0  # 半径1の球
-    normalized_points = []
-
-    for point in points:
-        x, y, z = point
-        length = math.sqrt(x**2 + y**2 + z**2)
-
-        # ゼロ除算を防止
-        if length != 0:
-            normalized_x = radius * (x / length)
-            normalized_y = radius * (y / length)
-            normalized_z = radius * (z / length)
-        else:
-            normalized_x, normalized_y, normalized_z = x, y, z
-
-        normalized_points.append((normalized_x, normalized_y, normalized_z))
-
-    return normalized_points
-
-
-def create_polyhedron(vertices):
-    new_vertices = []
-    num_vertices = len(vertices)
-
-    for i in range(num_vertices):
-        vertex1 = vertices[i]
-        vertex2 = vertices[(i + 1) % num_vertices]
-        new_vertex = (
-            (vertex1[0] + vertex2[0]) / 2,
-            (vertex1[1] + vertex2[1]) / 2,
-            (vertex1[2] + vertex2[2]) / 2,
-        )
-        new_vertices.append(new_vertex)
-
-    return new_vertices
-
-
-# 使用例
-num_iterations = 5
-
-result = create_geodesic_dome(df, num_iterations)
-result = np.array(result)
-print(result.shape)
+# %%
+print(som.shape)
 
 # %%

@@ -3,68 +3,80 @@ import numpy as np
 import pandas as pd
 import os
 
+
 from scipy.spatial.distance import cosine
+from scipy.spatial.distance import euclidean
 
 # %%
+# データの読み込み
 df = pd.read_csv("../ViT/result_feature/feature_vit.csv", index_col=0)
 df = df.values
 
-# データの次元
-dim = df.shape[1]
-# データ数
-n = df.shape[0]
+# データの正規化
+from sklearn.preprocessing import MinMaxScaler
 
-# マップサイズ
-m = 100  # 縦
-n = 100  # 横
+scaler = MinMaxScaler()
+df = scaler.fit_transform(df)
 
 
 # %%
-# ２点間のユークリッド距離を求める
-def euclidean_distance(x, y):
-    return euclidean(x, y)
+# 初期値の設定
+n_rows = 200  # 縦方向のノード数
+n_cols = 200  # 横方向のノード数
+n_features = 768  # データの次元数
+n_epochs = 1000  # エポック数
+learning_rate = 0.1  # 学習率
+sigma = 0.5  # 近傍半径の初期値
+sigma_decay = sigma / n_epochs  # 減少率
 
 
 # %%
-# コサイン類似度を求める
-def cosine_similarity(x, y):
-    return 1 - cosine(x, y)
+# コサイン類似度の計算
+def calc_cosine_similarity(v1, v2):
+    return 1 - cosine(v1, v2)
 
 
 # %%
-# コサイン類似度を用いて勝利ノードを求める
-def get_winner_node(som, x):
-    # 計算結果を入れる空のリストを作成
-    tmp = np.arrange(som.shape[0] * som.shape[1]).reshape(som.shape[0], som.shape[1])
-    # SOMの各ノードとのコサイン類似度を計算
-    for i in range(len(som.shpae[0])):
-        for j in range(len(som.shape[1])):
-            tmp[i][j] = cosine_similarity(som[i][j], x)
-    # コサイン類似度が最大のノードを勝利ノードとする
-    return np.unravel_index(np.argmax(tmp), tmp.shape)
+# 近傍関数
+def calc_neighborhood(distance, sigma):
+    return np.exp(-(distance**2) / (2 * (sigma**2)))
 
 
 # %%
-# 近傍ノードの取得（トーラス状）
-def get_neighbor_node(som, winner_node, sigma):
-    # 近傍ノードを入れる空のリストを作成
-    neighbor_node = []
-    # 勝利ノードの座標を取得
-    x, y = winner_node
-    # 近傍ノードの座標を取得
-    for i in range(som.shape[0]):
-        for j in range(som.shape[1]):
-            if euclidean_distance((x, y), (i, j)) < sigma:
-                neighbor_node.append((i, j))
-    return neighbor_node
+# マップの作成
+def create_torus_som(n_rows, n_cols, n_features):
+    som = np.random.rand(n_rows, n_cols, n_features)
+    return som
 
 
 # %%
-## 画像割り当てアルゴリズムメモ
-## １．球面SOMの結果から、画像との類似度がノードを探す
-## ２．類似度が高いものがある場合、そのノードに画像を割り当てる
-## ３．全画像の類似度を計算し、より類似度が高いものがある場合、更新し、外れた画像を保存する
-## ４．外れた画像のみで、３で割り当てられていないノードのみで２．３を繰り返す（再帰）
-## ５．全画像が割り当てられたら終了
+# BMUの計算
+def calc_bmu(som, data):
+    bmu = [0, 0]
+    max_similarity = 0
+    for i in range(n_rows):
+        for j in range(n_cols):
+            similarity = calc_cosine_similarity(som[i, j], data)
+            if similarity > max_similarity:
+                max_similarity = similarity
+                bmu = [i, j]
+    return bmu
+
 
 # %%
+# 近傍ノードの取得
+def get_neighborhood(som, bmu, sigma, step):
+    x, y = bmu
+
+    # 近傍ノードを格納するリスト
+    neighborhood = []
+
+    # BMUから半径以内の座標を取得（距離はユークリッド）
+    for i in range(n_rows):
+        for j in range(n_cols):
+            distance = euclidean([x, y], [i, j])
+            if distance <= sigma:
+                neighborhood.append([i, j])
+            # もし半径以内に端のノードがあった場合、
+            # 反対側の端のノードを取得する
+            elif (x - sigma < 0) and (i + n_rows - x <= sigma):
