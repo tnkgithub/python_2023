@@ -98,7 +98,6 @@ def get_neighborhood_unit(bmu, som, sigma):
     neighborhood_unit = []
     for vertex, _ in som.items():
         distance = calc_distance_sphere(bmu, vertex)
-        print(distance)
         if distance < sigma:
             neighborhood_unit.append(vertex)
     return neighborhood_unit
@@ -123,9 +122,7 @@ def train_som(som, data, n_epochs, learning_rate, learning_decay, sigma, sigma_d
     for epoch in range(n_epochs):
         for i in range(data.shape[0]):
             bmu = get_bmu(som, data[i])
-            print(bmu)
             neighborhood_unit = get_neighborhood_unit(bmu, som, sigma)
-            print(len(neighborhood_unit))
             som = update_weight(
                 som, data[i], bmu, neighborhood_unit, learning_rate, sigma
             )
@@ -142,11 +139,19 @@ som = create_geodesic_dome(num_points, feature_dim)
 
 # %%
 # somを学習
-n_epochs = 1  # エポック数を指定してください
+n_epochs = 1000  # エポック数を指定してください
 learning_rate = 0.5  # 学習率を指定してください
 learning_decay = 0.1  # 学習率の減少率を指定してください
 sigma = 0.5  # 近傍半径の初期値を指定してください
 sigma_decay = 0.1  # 近傍半径の減少率を指定してください
 som = train_som(som, df, n_epochs, learning_rate, learning_decay, sigma, sigma_decay)
 
+# %%
+# 3次元の座標を2次元に変換
+som3d_map = []
+for vertex, _ in som.items():
+    tmp = np.array(vertex)
+    som3d_map.append(tmp)
+
+som3d_map = np.array(som3d_map)
 # %%
