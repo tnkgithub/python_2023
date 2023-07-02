@@ -139,12 +139,46 @@ som = create_geodesic_dome(num_points, feature_dim)
 
 # %%
 # somを学習
-n_epochs = 1000  # エポック数を指定してください
+n_epochs = 500  # エポック数を指定してください
 learning_rate = 0.5  # 学習率を指定してください
 learning_decay = 0.1  # 学習率の減少率を指定してください
 sigma = 0.5  # 近傍半径の初期値を指定してください
 sigma_decay = 0.1  # 近傍半径の減少率を指定してください
 som = train_som(som, df, n_epochs, learning_rate, learning_decay, sigma, sigma_decay)
+
+#%%
+# 座標を取得 [x, y, z]
+coordinates = []
+for vertex, _ in som.items():
+    coordinates.append(vertex)
+
+coordinates = np.array(coordinates)
+
+#%%
+print(coordinates[:, 0])
+
+#%%
+# ３次元にプロット
+from mpl_toolkits.mplot3d import Axes3D
+
+fig = plt.figure(figsize=(15, 15))
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(coordinates[:, 0], coordinates[:, 1], coordinates[:, 2])
+plt.show()
+
+
+
+
+#%%
+df = pd.DataFrame.from_dict(som, orient='index')
+df.to_csv('som.csv')
+
+#%%
+df = pd.read_csv('som.csv', index_col=None)
+df_dict = df.to_dict(orient='index')
+
+#%%
+print(df_dict.keys())
 
 # %%
 # 3次元の座標を2次元に変換
@@ -154,4 +188,6 @@ for vertex, _ in som.items():
     som3d_map.append(tmp)
 
 som3d_map = np.array(som3d_map)
+# %%
+
 # %%

@@ -3,4 +3,5 @@ image_postcard/
 feature_resnet.csv
 resnet_pca.csv
 gapstat/
+som.csv
 __pycache__/
