@@ -4,4 +4,5 @@ feature_resnet.csv
 resnet_pca.csv
 gapstat/
 som.csv
+som.csv:Zone.Identifier
 __pycache__/
