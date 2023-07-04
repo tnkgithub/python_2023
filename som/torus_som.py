@@ -18,6 +18,41 @@ from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
 df = scaler.fit_transform(df)
 
+# %%
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# トーラスのパラメータ
+R = 1  # トーラスの中心から軸までの距離
+r = 0.3  # トーラスの断面円の半径
+theta_res = 100  # 断面円の分割数
+phi_res = 100  # 軸周りの分割数
+
+# パラメータ値の生成
+theta = np.linspace(0, 2 * np.pi, theta_res)
+phi = np.linspace(0, 2 * np.pi, phi_res)
+theta, phi = np.meshgrid(theta, phi)
+c, a = R + r * np.cos(theta), r * np.sin(theta)
+
+# トーラスの座標計算
+x = c * np.cos(phi)
+y = c * np.sin(phi)
+z = a
+
+# 三次元プロット
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
+ax.plot_wireframe(x, y, z, color="blue", alpha=0.3)
+
+# グラフ表示
+plt.show()
+
+# %%
+XYZ = np.stack([x.flatten(), y.flatten(), z.flatten()], axis=1)
+
+# %%
+print(XYZ.shape)
 
 # %%
 # 初期値の設定
@@ -70,13 +105,3 @@ def get_neighborhood(som, bmu, sigma, step):
 
     # 近傍ノードを格納するリスト
     neighborhood = []
-
-    # BMUから半径以内の座標を取得（距離はユークリッド）
-    for i in range(n_rows):
-        for j in range(n_cols):
-            distance = euclidean([x, y], [i, j])
-            if distance <= sigma:
-                neighborhood.append([i, j])
-            # もし半径以内に端のノードがあった場合、
-            # 反対側の端のノードを取得する
-            elif (x - sigma < 0) and (i + n_rows - x <= sigma):

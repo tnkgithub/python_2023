@@ -18,46 +18,117 @@ df = scaler.fit_transform(df)
 
 
 # %%
-# 測地線ドームを作成
-def create_geodesic_dome(num_points, feature_dim):
-    vertices = {
-        (0.0, 0.0, 1.0): np.random.rand(feature_dim),  # 北極点
-        (0.0, 0.0, -1.0): np.random.rand(feature_dim),  # 南極点
-    }
-    golden_ratio = (1 + np.sqrt(5)) / 2
+import numpy as np
 
-    for i in range(5):
-        latitude = np.arctan(1 / golden_ratio) * i  # 緯度
-        longitude_shift = np.pi * i / 5  # 経度シフト
 
-        for j in range(5):
-            longitude = 2 * np.pi * j / 5 + longitude_shift
-            x = np.cos(longitude) * np.cos(latitude)
-            y = np.sin(longitude) * np.cos(latitude)
-            z = np.sin(latitude)
-            vertices[(x, y, z)] = np.random.rand(feature_dim)
+def create_geodesic_dome(num_subdivisions):
+    # 初期状態の正多面体（正二十面体）の頂点座標を定義
+    phi = (1 + np.sqrt(5)) / 2
+    vertices = np.array(
+        [
+            [0, 1, phi],
+            [0, -1, phi],
+            [0, 1, -phi],
+            [0, -1, -phi],
+            [1, phi, 0],
+            [-1, phi, 0],
+            [1, -phi, 0],
+            [-1, -phi, 0],
+            [phi, 0, 1],
+            [-phi, 0, 1],
+            [phi, 0, -1],
+            [-phi, 0, -1],
+        ]
+    )
 
-    while len(vertices) < num_points:
-        new_vertices = {}
+    # 多面体の辺を定義
+    edges = np.array(
+        [
+            [0, 8],
+            [0, 5],
+            [0, 10],
+            [0, 11],
+            [1, 6],
+            [1, 7],
+            [1, 8],
+            [1, 10],
+            [2, 4],
+            [2, 5],
+            [2, 9],
+            [2, 11],
+            [3, 6],
+            [3, 7],
+            [3, 9],
+            [3, 11],
+            [4, 5],
+            [4, 6],
+            [4, 9],
+            [5, 10],
+            [5, 7],
+            [6, 8],
+            [6, 10],
+            [7, 11],
+            [8, 10],
+            [9, 11],
+        ]
+    )
 
-        for current_vertex in vertices.keys():
-            next_vertex = list(vertices.keys())[0]  # 最初の頂点をセット
-            for vertex in vertices.keys():
-                next_vertex = vertex
-                midpoint = tuple((np.array(current_vertex) + np.array(next_vertex)) / 2)
-                if midpoint not in vertices and midpoint not in new_vertices:
-                    new_data = np.random.rand(feature_dim)
-                    new_vertices[midpoint] = new_data
+    # 繰り返しステップ
+    for _ in range(num_subdivisions):
+        new_vertices = []
+        new_edges = []
 
-                if len(new_vertices) >= num_points - len(vertices):
-                    break
+        # 各辺の中点を求めて球面に押し出す
+        for edge in edges:
+            v1 = vertices[edge[0]]
+            v2 = vertices[edge[1]]
+            mid_point = (v1 + v2) / 2
+            normalized_point = mid_point / np.linalg.norm(mid_point)
+            new_vertices.append(normalized_point)
 
-            if len(new_vertices) >= num_points - len(vertices):
-                break
+        # 新しい頂点を含む新しい辺を構築
+        for i in range(len(edges)):
+            v1 = edges[i][0]
+            v2 = edges[i][1]
+            new_vertex_index = len(vertices) + i
+            new_edges.append([v1, new_vertex_index])
+            new_edges.append([v2, new_vertex_index])
+            new_edges.append([new_vertex_index, v1])
 
-        vertices.update(new_vertices)
+        # 頂点と辺を更新
+        vertices = np.vstack((vertices, new_vertices))
+        edges = np.array(new_edges)
 
     return vertices
+
+
+# 細分割の回数を指定して測地線ドームを作成する例
+num_subdivisions = 2
+dome_vertices = create_geodesic_dome(num_subdivisions)
+for vertex in dome_vertices:
+    print(vertex)
+
+
+# %%
+fig, ax = plt.subplots(
+    figsize=(15, 15), facecolor="white", subplot_kw={"projection": "3d"}
+)
+X = []
+Y = []
+Z = []
+for vertex in dome_vertices:
+    X.append(vertex[0])
+    Y.append(vertex[1])
+    Z.append(vertex[2])
+
+# ax.plot_wireframe(X, Y, Z, alpha=0.5)  # くり抜き曲面
+ax.scatter(X, Y, Z, alpha=0.5)
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.set_zlabel("z")
+fig.suptitle("spherical surface", fontsize=10)
+ax.set_aspect("auto")
+plt.show()
 
 
 # %%
@@ -146,7 +217,7 @@ sigma = 0.5  # 近傍半径の初期値を指定してください
 sigma_decay = 0.1  # 近傍半径の減少率を指定してください
 som = train_som(som, df, n_epochs, learning_rate, learning_decay, sigma, sigma_decay)
 
-#%%
+# %%
 # 座標を取得 [x, y, z]
 coordinates = []
 for vertex, _ in som.items():
@@ -154,30 +225,28 @@ for vertex, _ in som.items():
 
 coordinates = np.array(coordinates)
 
-#%%
+# %%
 print(coordinates[:, 0])
 
-#%%
+# %%
 # ３次元にプロット
 from mpl_toolkits.mplot3d import Axes3D
 
 fig = plt.figure(figsize=(15, 15))
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(111, projection="3d")
 ax.scatter(coordinates[:, 0], coordinates[:, 1], coordinates[:, 2])
 plt.show()
 
 
+# %%
+df = pd.DataFrame.from_dict(som, orient="index")
+df.to_csv("som.csv")
 
+# %%
+df = pd.read_csv("som.csv", index_col=None)
+df_dict = df.to_dict(orient="index")
 
-#%%
-df = pd.DataFrame.from_dict(som, orient='index')
-df.to_csv('som.csv')
-
-#%%
-df = pd.read_csv('som.csv', index_col=None)
-df_dict = df.to_dict(orient='index')
-
-#%%
+# %%
 print(df_dict.keys())
 
 # %%
@@ -189,5 +258,11 @@ for vertex, _ in som.items():
 
 som3d_map = np.array(som3d_map)
 # %%
+
+# %%
+import geodesicDome
+
+# %%
+vertex = geodesicDome.GeodesicDome(2)
 
 # %%

@@ -1,4 +1,4 @@
-#%%
+# %%
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from scipy.spatial.distance import cosine
 
-#%%
+# %%
 df = pd.read_csv("../ViT/result_feature/feature_vit.csv", index_col=0)
 df = df.values
 
@@ -14,15 +14,15 @@ df = df.values
 scaler = MinMaxScaler()
 df = scaler.fit_transform(df)
 
-#%%
+# %%
 # 半径を指定
 r = 1.0
 
 # ラジアンを作成
 # q: 0.0 ~ 2.0*np.piとは何か
 # a: 0.0 ~ 2.0*np.piの範囲で81個の等間隔の数値を生成
-t = np.linspace(start=0.0, stop=2.0*np.pi, num=81)
-u = np.linspace(start=0.0, stop=2.0*np.pi, num=81)
+t = np.linspace(start=0.0, stop=2.0 * np.pi, num=81)
+u = np.linspace(start=0.0, stop=2.0 * np.pi, num=81)
 
 # 格子点を作成
 T, U = np.meshgrid(t, u)
@@ -32,25 +32,28 @@ X = r * np.sin(T) * np.cos(U)
 Y = r * np.sin(T) * np.sin(U)
 Z = r * np.cos(T)
 
-#%%
+# %%
 XYZ = np.stack([X.flatten(), Y.flatten(), Z.flatten()], axis=1)
 
 # %%
-# # 球面を作図
-# fig, ax = plt.subplots(figsize=(15, 15), facecolor='white', subplot_kw={'projection': '3d'})
-# ax.scatter(X, Y, Z, c=Z, cmap='viridis', alpha=0.5) # 散布図:(z軸の値により色付け)
-# ax.set_xlabel('x')
-# ax.set_ylabel('y')
-# ax.set_zlabel('z')
-# fig.suptitle('spherical surface', fontsize=20)
-# ax.set_aspect('auto')
-# plt.show()
+# 球面を作図
+fig, ax = plt.subplots(
+    figsize=(15, 15), facecolor="white", subplot_kw={"projection": "3d"}
+)
+ax.plot_wireframe(X, Y, Z, alpha=0.5)  # くり抜き曲面
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.set_zlabel("z")
+fig.suptitle("spherical surface", fontsize=20)
+ax.set_aspect("equal")
+plt.show()
 
 # %%
 # 辞書{(x, y, z): [feature_dim]}を作成
 vertices = {}
 for i in range(len(XYZ)):
     vertices[tuple(XYZ[i])] = np.random.rand(768)
+
 
 # %%
 # 球面上の距離を計算
@@ -140,19 +143,37 @@ vertices_list = []
 for vertex, _ in som.items():
     vertices_list.append(np.array(vertex))
 
-#%%
+# %%
 print(vertices_list)
-#%%
+# %%
 
 # somの結果をデータフレームに変換 x, y, z, feature_dim
 df_som = pd.DataFrame(np.concatenate([vertices_list, list(som.values())], axis=1))
-df_som.to_csv('som.csv', index=False)
+df_som.to_csv("som.csv", index=False)
 
 # %%
+df_som = pd.read_csv("som.csv")
 som_vertices = df_som.iloc[:, :3].values
 som_value = df_som.iloc[:, 3:].values
 
-#%%
+# %%
+# 球面を作図
+fig, ax = plt.subplots(
+    figsize=(15, 15), facecolor="white", subplot_kw={"projection": "3d"}
+)
+X = som_vertices[:, 0]
+Y = som_vertices[:, 1]
+Z = som_vertices[:, 2]
+ax.scatter(X, Y, Z, c=Z, cmap="viridis", alpha=0.5)  # 散布図:(z軸の値により色付け)
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.set_zlabel("z")
+fig.suptitle("spherical surface", fontsize=20)
+ax.set_aspect("auto")
+plt.show()
+
+
+# %%
 # 地心直交座標を緯度経度に変換
 def convert_xyz_to_latlon(vertices):
     latlon = []
@@ -166,8 +187,10 @@ def convert_xyz_to_latlon(vertices):
         latlon.append([lat, lon])
     return np.array(latlon)
 
+
 # %%
 latlon = convert_xyz_to_latlon(som_vertices)
+
 
 # %%
 # 緯度経度から平面直角座標に変換
@@ -175,21 +198,24 @@ def convert_latlon_to_xy(latlon, width=100, height=100):
     xy = []
     for lat, lon in latlon:
         x = (lon + 180) * (width / 360)
-        y = np.log(np.tan((lat + 90) * np.pi / 360 + np.pi / 4)) * (height / (2 * np.pi))
+        y = np.log(np.tan((lat + 90) * np.pi / 360 + np.pi / 4)) * (
+            height / (2 * np.pi)
+        )
         xy.append([x, y])
     return np.array(xy)
+
 
 # %%
 xy = convert_latlon_to_xy(latlon)
 
-#%%
+# %%
 # 地図の描画
 xy = convert_latlon_to_xy(latlon)
 width = 100
 height = 100
 x = xy[:, 0]
 y = xy[:, 1]
-plt.plot(x, y, 'ro')
+plt.plot(x, y, "ro")
 plt.xlim(0, width)
 plt.ylim(0, height)
 plt.show()
