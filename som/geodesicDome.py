@@ -1,12 +1,10 @@
 # %%
 import geodesic_dome as gd
-import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from scipy.interpolate import griddata
+import pandas as pd
 
 # %%
-vertices, triangels, adj_list = gd.create_geodesic_dome(4)
+vertices, triangels, adj_list = gd.create_geodesic_dome(5)
 
 # %%
 print(vertices.shape)
@@ -19,8 +17,8 @@ fig, ax = plt.subplots(
 x = vertices[:, 0]
 y = vertices[:, 1]
 z = vertices[:, 2]
-ax.plot_wireframe(x, y, z, alpha=0.5)  # くり抜き曲面
-# ax.scatter(x, y, z, alpha=0.5)
+#ax.plot_wireframe(x, y, z, alpha=0.5)  # くり抜き曲面
+ax.scatter(x, y, z, alpha=0.5)
 ax.set_xlabel("x")
 ax.set_ylabel("y")
 ax.set_zlabel("z")
@@ -29,3 +27,6 @@ ax.set_aspect("equal")
 plt.show()
 
 # %%
+# 座標をデータフレームに格納
+df = pd.DataFrame(vertices, columns=["x", "y", "z"])
+df.to_csv("geodesic_dome.csv", index=False)

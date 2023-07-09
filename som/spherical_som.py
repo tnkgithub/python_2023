@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import datetime
 
 from sklearn.preprocessing import MinMaxScaler
 from scipy.spatial.distance import cosine
@@ -14,45 +15,19 @@ df = df.values
 scaler = MinMaxScaler()
 df = scaler.fit_transform(df)
 
-# %%
-# 半径を指定
-r = 1.0
-
-# ラジアンを作成
-# q: 0.0 ~ 2.0*np.piとは何か
-# a: 0.0 ~ 2.0*np.piの範囲で81個の等間隔の数値を生成
-t = np.linspace(start=0.0, stop=2.0 * np.pi, num=81)
-u = np.linspace(start=0.0, stop=2.0 * np.pi, num=81)
-
-# 格子点を作成
-T, U = np.meshgrid(t, u)
-
-# 球面座標を直交座標に変換
-X = r * np.sin(T) * np.cos(U)
-Y = r * np.sin(T) * np.sin(U)
-Z = r * np.cos(T)
+#%%
+# 座標データの読み込み
+# vertex_df = pd.read_csv("geodesic_dome.csv")
+vertex_df = pd.read_csv("./result_vertices/torus.csv")
+# vertex_df = pd.read_csv("geocentric_cartesian_coordinates.csv")
+vertex_df = vertex_df.values
 
 # %%
-XYZ = np.stack([X.flatten(), Y.flatten(), Z.flatten()], axis=1)
-
-# %%
-# 球面を作図
-fig, ax = plt.subplots(
-    figsize=(15, 15), facecolor="white", subplot_kw={"projection": "3d"}
-)
-ax.plot_wireframe(X, Y, Z, alpha=0.5)  # くり抜き曲面
-ax.set_xlabel("x")
-ax.set_ylabel("y")
-ax.set_zlabel("z")
-fig.suptitle("spherical surface", fontsize=20)
-ax.set_aspect("equal")
-plt.show()
-
-# %%
-# 辞書{(x, y, z): [feature_dim]}を作成
+# 辞書{(x, y, z): [feature dim]}を作成
 vertices = {}
-for i in range(len(XYZ)):
-    vertices[tuple(XYZ[i])] = np.random.rand(768)
+for vertex in vertex_df:
+    vertices[tuple(vertex)] = np.random.rand(768)
+
 
 
 # %%
@@ -125,14 +100,19 @@ def train_som(som, data, n_epochs, learning_rate, learning_decay, sigma, sigma_d
         sigma = sigma_0 * np.exp(-epoch / sigma_decay)
     return som
 
+#%%
+bmu = get_bmu(vertices, df[0])
+neighborhood_unit = get_neighborhood_unit(bmu, vertices, 5.0)
+
+print(len(neighborhood_unit))
 
 # %%
 # somを学習
 som = vertices
-n_epochs = 100  # エポック数を指定してください
+n_epochs = 1000  # エポック数を指定してください
 learning_rate = 0.5  # 学習率を指定してください
 learning_decay = 0.1  # 学習率の減少率を指定してください
-sigma = 1.0  # 近傍半径の初期値を指定してください
+sigma = 5.0  # 近傍半径の初期値を指定してください
 sigma_decay = 0.1  # 近傍半径の減少率を指定してください
 som = train_som(som, df, n_epochs, learning_rate, learning_decay, sigma, sigma_decay)
 
@@ -144,12 +124,13 @@ for vertex, _ in som.items():
     vertices_list.append(np.array(vertex))
 
 # %%
-print(vertices_list)
-# %%
+now = datetime.datetime.now()
+filename = 'som_torus' + now.strftime('%Y%m%d_%H%M%S') + '.csv'
+
 
 # somの結果をデータフレームに変換 x, y, z, feature_dim
 df_som = pd.DataFrame(np.concatenate([vertices_list, list(som.values())], axis=1))
-df_som.to_csv("som.csv", index=False)
+df_som.to_csv(filename, index=False)
 
 # %%
 df_som = pd.read_csv("som.csv")

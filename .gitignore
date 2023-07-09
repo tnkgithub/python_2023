@@ -6,3 +6,6 @@ gapstat/
 som.csv
 som.csv:Zone.Identifier
 __pycache__/
+result_som/
+result_vertices/
+result_image/
