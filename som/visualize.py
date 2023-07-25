@@ -77,7 +77,7 @@ def som_to_gird2():
     if len(not_placed_features_index) != 0:
         # girdの配されていない箇所のうち、最も類似度が高いものに配置する
         for i in not_placed_features_index:
-            max_similarity = 0.0
+            max_similarity = -1.0
             max_x = 1000
             max_y = 1000
             for x in range(n):
