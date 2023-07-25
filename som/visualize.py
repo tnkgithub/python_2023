@@ -1,11 +1,10 @@
 # %%
-
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import cv2
 import os
 
-from scipy.spatial.distance import cosine
 import datetime
 import csv
 
@@ -15,17 +14,17 @@ df_features = pd.read_csv("../ViT/result_feature/feature_vit.csv", index_col=0)
 features = df_features.values
 
 # som結果の読み込み
-df_som = pd.read_csv("./result_som/som_torus.csv", index_col=0)
+df_som = pd.read_csv("./result_som/som_torus_50_20230725_004945.csv", index_col=0)
 vertices = df_som.iloc[:, :3].values
 som = df_som.iloc[:, 2:].values
 
-m = 100 # 軸周りの分割数
-n = 100 # 断面円の分割数
+m = 50 # 軸周りの分割数
+n = 50 # 断面円の分割数
 
 #%%
 # cos類似度の計算
 def calc_cosine_similarity(v1, v2):
-    return 1 - cosine(v1, v2)
+    return np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
 
 #%%
 # アルゴリズム
@@ -56,25 +55,31 @@ def som_to_gird():
                 features_index.append(flat[max_index // m][max_index % m])
                 flat[max_index // m][max_index % m] = i
                 features_index.remove(i)
-                print("replace", i)
             else:
-                not_placed_features_index.append(i)
+                if i not in not_placed_features_index:
+                    not_placed_features_index.append(i)
                 features_index.remove(i)
-                print("not placed", i)
         else:
             flat[max_index // m][max_index % m] = i
             features_index.remove(i)
-            print("placed", i)
+
 
     print(len(features_index))
     if len(features_index) != 0:
         som_to_gird()
 
+    print(len(not_placed_features_index))
     # まだ配置されていない特徴量がある場合
-    if not_placed_features_index != []:
+
+#%%
+def som_to_gird2():
+    tmp = len(not_placed_features_index)
+    if len(not_placed_features_index) != 0:
         # girdの配されていない箇所のうち、最も類似度が高いものに配置する
         for i in not_placed_features_index:
             max_similarity = 0.0
+            max_x = 1000
+            max_y = 1000
             for x in range(n):
                 for y in range(m):
                     if flat[x][y] == -1:
@@ -83,19 +88,30 @@ def som_to_gird():
                             max_similarity = similarity
                             max_x = x
                             max_y = y
-            flat[max_x][max_y] = i
-    return flat
 
+            if max_x != 1000 and max_y != 1000:
+                print(i)
+                flat[max_x][max_y] = i
+                not_placed_features_index.remove(i)
+
+    if tmp == len(not_placed_features_index):
+        return
+    else:
+        som_to_gird2()
+
+    print(len(not_placed_features_index))
 # %%
-grid = som_to_gird()
+som_to_gird()
+#%%
+som_to_gird2()
 
 #%%
 #１行にする？
 img_no = []
-img_no = sum(grid, [])
+img_no = sum(flat, [])
 
 now = datetime.datetime.now()
-filename = 'result_SOM_image_torus' + now.strftime('%Y%m%d_%H%M%S') + '.csv'
+filename = './result_som_list/result_SOM_torus_50_' + now.strftime('%Y%m%d_%H%M%S') + '.csv'
 
 f = open(filename, 'w')
 writer = csv.writer(f)
@@ -127,7 +143,7 @@ def resize_and_trim(img, width, height):
 
 
 #%%
-img_name = 'result_SOM_image_torus' + now.strftime('%Y%m%d_%H%M%S') + '.png'
+img_name = './result_image/result_SOM_image_torus_50_' + now.strftime('%Y%m%d_%H%M%S') + '.png'
 
 img_dir_path =   '/home/b1019035/python/gra_study/imagesSub/'
 

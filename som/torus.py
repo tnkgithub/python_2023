@@ -2,13 +2,12 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import datetime
 
 # トーラスのパラメータ
 R = 1  # トーラスの中心から軸までの距離
 r = 0.3  # トーラスの断面円の半径
-theta_res = 100  # 断面円の分割数
-phi_res = 100  # 軸周りの分割数
+theta_res = 80  # 断面円の分割数
+phi_res = 80  # 軸周りの分割数
 
 # パラメータ値の生成
 theta = np.linspace(0, 2 * np.pi, theta_res)
@@ -30,11 +29,9 @@ ax.plot_wireframe(x, y, z, color="blue", alpha=0.3)
 plt.show()
 
 #%%
-now = datetime.datetime.now()
-filename = 'result_SOM_image_torus' + now.strftime('%Y%m%d_%H%M%S') + '.csv'
 
 
 # 座標をデータフレームに格納
 df = pd.DataFrame(np.array([x.flatten(), y.flatten(), z.flatten()]).T, columns=["x", "y", "z"])
-df.to_csv("torus.csv", index=False)
+df.to_csv("./result_vertices/torus_80.csv", index=False)
 # %%

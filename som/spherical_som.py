@@ -4,21 +4,25 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
 
-from sklearn.preprocessing import MinMaxScaler
-from scipy.spatial.distance import cosine
+# 標準化
+from sklearn.preprocessing import StandardScaler
+from scipy.spatial.distance import cosine, euclidean
 
 # %%
 df = pd.read_csv("../ViT/result_feature/feature_vit.csv", index_col=0)
 df = df.values
 
-# データの正規化
-scaler = MinMaxScaler()
+# データの標準化
+scaler = StandardScaler()
 df = scaler.fit_transform(df)
+
+df_max = np.max(df)
+df_min = np.min(df)
 
 #%%
 # 座標データの読み込み
 # vertex_df = pd.read_csv("geodesic_dome.csv")
-vertex_df = pd.read_csv("./result_vertices/torus.csv")
+vertex_df = pd.read_csv("result_vertices/torus_50.csv")
 # vertex_df = pd.read_csv("geocentric_cartesian_coordinates.csv")
 vertex_df = vertex_df.values
 
@@ -26,14 +30,18 @@ vertex_df = vertex_df.values
 # 辞書{(x, y, z): [feature dim]}を作成
 vertices = {}
 for vertex in vertex_df:
-    vertices[tuple(vertex)] = np.random.rand(768)
+    vertices[tuple(vertex)] = (df_max - df_min) * np.random.rand(768) + df_min
 
-
+#%%
+tmp = (df_max - df_min) * np.random.rand(768) + df_min
+print(tmp.shape)
+print(tmp.max())
+print(tmp.min())
 
 # %%
 # 球面上の距離を計算
-def calc_distance_sphere(v1, v2):
-    return np.arccos(np.dot(v1, v2))
+def calc_distance(v1, v2):
+    return euclidean(v1, v2)
 
 
 # %%
@@ -67,7 +75,7 @@ def get_neighborhood_unit(bmu, som, sigma):
     # bmuと各頂点の距離を計算し、半径以内の頂点を取得
     neighborhood_unit = []
     for vertex, _ in som.items():
-        distance = calc_distance_sphere(bmu, vertex)
+        distance = calc_distance(bmu, vertex)
         if distance < sigma:
             neighborhood_unit.append(vertex)
     return neighborhood_unit
@@ -78,7 +86,7 @@ def get_neighborhood_unit(bmu, som, sigma):
 def update_weight(som, data, bmu, neighborhood_unit, learning_rate, sigma):
     for vertex, value in som.items():
         if vertex in neighborhood_unit:
-            distance = calc_distance_sphere(vertex, bmu)
+            distance = calc_distance(vertex, bmu)
             neighborhood = calc_neighborhood(distance, sigma)
             som[vertex] = value + learning_rate * neighborhood * (data - value)
     return som
@@ -102,18 +110,18 @@ def train_som(som, data, n_epochs, learning_rate, learning_decay, sigma, sigma_d
 
 #%%
 bmu = get_bmu(vertices, df[0])
-neighborhood_unit = get_neighborhood_unit(bmu, vertices, 5.0)
+neighborhood_unit = get_neighborhood_unit(bmu, vertices, 1.0)
 
 print(len(neighborhood_unit))
 
 # %%
 # somを学習
 som = vertices
-n_epochs = 1000  # エポック数を指定してください
-learning_rate = 0.5  # 学習率を指定してください
-learning_decay = 0.1  # 学習率の減少率を指定してください
-sigma = 5.0  # 近傍半径の初期値を指定してください
-sigma_decay = 0.1  # 近傍半径の減少率を指定してください
+n_epochs = 800  # エポック数
+learning_rate = 0.5  # 学習率
+learning_decay = 0.1  # 学習率の減少率
+sigma = 1.0  # 近傍半径の初期値
+sigma_decay = 0.1  # 近傍半径の減少率
 som = train_som(som, df, n_epochs, learning_rate, learning_decay, sigma, sigma_decay)
 
 # %%
@@ -125,7 +133,7 @@ for vertex, _ in som.items():
 
 # %%
 now = datetime.datetime.now()
-filename = 'som_torus' + now.strftime('%Y%m%d_%H%M%S') + '.csv'
+filename = './result_som/som_torus_50_' + now.strftime('%Y%m%d_%H%M%S') + '.csv'
 
 
 # somの結果をデータフレームに変換 x, y, z, feature_dim
