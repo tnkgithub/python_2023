@@ -19,7 +19,7 @@ df = scaler.fit_transform(df)
 df_max = np.max(df)
 df_min = np.min(df)
 
-#%%
+# %%
 # 座標データの読み込み
 # vertex_df = pd.read_csv("geodesic_dome.csv")
 vertex_df = pd.read_csv("result_vertices/torus_50.csv")
@@ -32,11 +32,12 @@ vertices = {}
 for vertex in vertex_df:
     vertices[tuple(vertex)] = (df_max - df_min) * np.random.rand(768) + df_min
 
-#%%
+# %%
 tmp = (df_max - df_min) * np.random.rand(768) + df_min
 print(tmp.shape)
 print(tmp.max())
 print(tmp.min())
+
 
 # %%
 # 球面上の距離を計算
@@ -108,7 +109,8 @@ def train_som(som, data, n_epochs, learning_rate, learning_decay, sigma, sigma_d
         sigma = sigma_0 * np.exp(-epoch / sigma_decay)
     return som
 
-#%%
+
+# %%
 bmu = get_bmu(vertices, df[0])
 neighborhood_unit = get_neighborhood_unit(bmu, vertices, 1.0)
 
@@ -133,7 +135,7 @@ for vertex, _ in som.items():
 
 # %%
 now = datetime.datetime.now()
-filename = './result_som/som_torus_50_' + now.strftime('%Y%m%d_%H%M%S') + '.csv'
+filename = "./result_som/som_torus_50_" + now.strftime("%Y%m%d_%H%M%S") + ".csv"
 
 
 # somの結果をデータフレームに変換 x, y, z, feature_dim

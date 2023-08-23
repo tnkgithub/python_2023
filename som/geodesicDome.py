@@ -4,20 +4,20 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # %%
-vertices, triangels, adj_list = gd.create_geodesic_dome(5)
+vertices, triangels, adj_list = gd.create_geodesic_dome(4)
 
 # %%
 print(vertices.shape)
 
 # %%
 fig, ax = plt.subplots(
-    figsize=(15, 15), facecolor="white", subplot_kw={"projection": "3d"}
+    figsize=(15, 15), facecolor="None", subplot_kw={"projection": "3d"}
 )
-
+plt.gca().axis("off")
 x = vertices[:, 0]
 y = vertices[:, 1]
 z = vertices[:, 2]
-#ax.plot_wireframe(x, y, z, alpha=0.5)  # くり抜き曲面
+# ax.plot_wireframe(x, y, z, alpha=0.5)  # くり抜き曲面
 ax.scatter(x, y, z, alpha=0.5)
 ax.set_xlabel("x")
 ax.set_ylabel("y")
