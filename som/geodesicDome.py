@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # %%
-vertices, triangels, adj_list = gd.create_geodesic_dome(4)
+vertices, triangels, adj_list = gd.create_geodesic_dome(3)
 
 # %%
 print(vertices.shape)
