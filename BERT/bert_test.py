@@ -1,6 +1,5 @@
 # %%
 import torch
-import tensorflow as tf
 import numpy as np
 from transformers import BertJapaneseTokenizer, BertModel, BertConfig
 
@@ -11,16 +10,6 @@ tokenizer = BertJapaneseTokenizer.from_pretrained(
 model_bert = BertModel.from_pretrained(
     "cl-tohoku/bert-base-japanese-whole-word-masking", output_hidden_states=True
 )
-
-# %%
-text = "今日はいい天気ですね。"
-input_ids = torch.tensor([tokenizer.encode(text, add_special_tokens=True)])
-
-with torch.no_grad():
-    outputs = model_bert(input_ids)
-
-hidden_states = outputs.last_hidden_state
-concatenated_hidden = torch.cat(hidden_states[-4:], dim=-1)
 
 # %%
 # 入力テキストをトークン化
