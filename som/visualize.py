@@ -13,13 +13,14 @@ import csv
 df_features = pd.read_csv("../ViT/result_feature/feature_vit.csv", index_col=0)
 features = df_features.values
 
+
 # som結果の読み込み
-df_som = pd.read_csv("./result_som/som_torus_50_20230725_004945.csv", index_col=0)
+df_som = pd.read_csv("./result_som/som_torus_43_46_20230919_004301.csv", index_col=0)
 vertices = df_som.iloc[:, :3].values
 som = df_som.iloc[:, 2:].values
 
-m = 50 # 軸周りの分割数
-n = 50 # 断面円の分割数
+m = 43 # 軸周りの分割数
+n = 46 # 断面円の分割数
 
 #%%
 # cos類似度の計算
@@ -72,12 +73,11 @@ def som_to_gird():
     # まだ配置されていない特徴量がある場合
 
 #%%
-def som_to_gird2():
+def som_to_gird2(max_similarity=0.3):
     tmp = len(not_placed_features_index)
     if len(not_placed_features_index) != 0:
         # girdの配されていない箇所のうち、最も類似度が高いものに配置する
         for i in not_placed_features_index:
-            max_similarity = -1.0
             max_x = 1000
             max_y = 1000
             for x in range(n):
@@ -97,13 +97,14 @@ def som_to_gird2():
     if tmp == len(not_placed_features_index):
         return
     else:
-        som_to_gird2()
+        max_similarity = max_similarity - 0.1
+        som_to_gird2(max_similarity)
 
     print(len(not_placed_features_index))
 # %%
 som_to_gird()
 #%%
-som_to_gird2()
+som_to_gird2(0.3)
 
 #%%
 #１行にする？
@@ -165,7 +166,7 @@ for i, no in zip(range(m*n), img_no):
         # 画像を読み込む
         imgs[i] = cv2.imread(imgs_path[no])
         imgs[i] = cv2.cvtColor(imgs[i], cv2.COLOR_BGR2RGB)
-        #imgs[i] = resize_and_trim(imgs[i], 100, 162)
+        imgs[i] = resize_and_trim(imgs[i], 100, 162)
         plt.subplot(m, n, i+1)
         plt.subplots_adjust(hspace=0.0)
         plt.axis("off")

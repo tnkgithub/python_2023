@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 # トーラスのパラメータ
 R = 1  # トーラスの中心から軸までの距離
 r = 0.3  # トーラスの断面円の半径
-theta_res = 50  # 断面円の分割数
-phi_res = 50  # 軸周りの分割数
+theta_res = 43  # 断面円の分割数
+phi_res = 46  # 軸周りの分割数
 
 # パラメータ値の生成
 theta = np.linspace(0, 2 * np.pi, theta_res)
@@ -20,6 +20,7 @@ x = c * np.cos(phi)
 y = c * np.sin(phi)
 z = a
 
+#%%
 # 三次元プロット
 fig, ax = plt.subplots(
     figsize=(15, 15), facecolor="None", subplot_kw={"projection": "3d"}
@@ -38,9 +39,11 @@ plt.show()
 df = pd.DataFrame(
     np.array([x.flatten(), y.flatten(), z.flatten()]).T, columns=["x", "y", "z"]
 )
-df.to_csv("./result_vertices/torus_80.csv", index=False)
+df.to_csv("./result_vertices/torus_43_46.csv", index=False)
+
+
 # %%
-# トーラスを平面に展開
+# ２次元平面を作成（スライド用）
 
 x = np.arange(40)
 y = np.arange(40)
@@ -52,7 +55,7 @@ ax.set_aspect("equal")
 plt.show()
 
 # %%
-# 筒形のパラメータ
+# 筒形のパラメータ（スライド用）
 R = 1  # 筒形の中心から軸までの距離
 r = 0.2  # 筒形の断面円の半径
 height = 1  # 筒形の高さ
