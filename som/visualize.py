@@ -15,7 +15,7 @@ features = df_features.values
 
 
 # som結果の読み込み
-df_som = pd.read_csv("./result_som/som_torus_43_46_20230919_004301.csv", index_col=0)
+df_som = pd.read_csv("./result_som/som_torus_43_46_20230921_010424.csv", index_col=0)
 vertices = df_som.iloc[:, :3].values
 som = df_som.iloc[:, 2:].values
 
@@ -90,7 +90,6 @@ def som_to_gird2(max_similarity=0.3):
                             max_y = y
 
             if max_x != 1000 and max_y != 1000:
-                print(i)
                 flat[max_x][max_y] = i
                 not_placed_features_index.remove(i)
 
@@ -100,7 +99,6 @@ def som_to_gird2(max_similarity=0.3):
         max_similarity = max_similarity - 0.1
         som_to_gird2(max_similarity)
 
-    print(len(not_placed_features_index))
 # %%
 som_to_gird()
 #%%
@@ -144,7 +142,7 @@ def resize_and_trim(img, width, height):
 
 
 #%%
-img_name = './result_image/result_SOM_image_torus_50_' + now.strftime('%Y%m%d_%H%M%S') + '.png'
+img_name = './result_image/result_SOM_image_torus_43_46_' + now.strftime('%Y%m%d_%H%M%S') + '.png'
 
 img_dir_path =   '/home/b1019035/python/gra_study/imagesSub/'
 
@@ -156,7 +154,7 @@ for i in img_list:
 
 
 # 画像のサイズ、背景を設定
-plt.figure(figsize=(100,100), facecolor='w')
+plt.figure(figsize=(50,50), facecolor='w')
 plt.subplots_adjust(wspace=0, hspace=0)
 
 '''画像を読み込み、タイル状に出力'''
@@ -166,7 +164,7 @@ for i, no in zip(range(m*n), img_no):
         # 画像を読み込む
         imgs[i] = cv2.imread(imgs_path[no])
         imgs[i] = cv2.cvtColor(imgs[i], cv2.COLOR_BGR2RGB)
-        imgs[i] = resize_and_trim(imgs[i], 100, 162)
+        #imgs[i] = resize_and_trim(imgs[i], 100, 162)
         plt.subplot(m, n, i+1)
         plt.subplots_adjust(hspace=0.0)
         plt.axis("off")

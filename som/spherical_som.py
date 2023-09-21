@@ -106,17 +106,17 @@ def train_som(som, data, n_epochs, learning_rate, learning_decay, sigma, sigma_d
 
 # %%
 bmu = get_bmu(vertices, df[0])
-neighborhood_unit = get_neighborhood_unit(bmu, vertices, 0.35)
+neighborhood_unit = get_neighborhood_unit(bmu, vertices, 0.3)
 
 print(len(neighborhood_unit))
 
 # %%
 # somを学習
 som = vertices
-n_epochs = 1500  # エポック数
+n_epochs = 100  # エポック数
 learning_rate = 0.5  # 学習率
-learning_decay = 0.1  # 学習率の減少率
-sigma = 0.35  # 近傍半径の初期値
+learning_decay = 0.01  # 学習率の減少率
+sigma = 0.3  # 近傍半径の初期値
 sigma_decay = 0.1  # 近傍半径の減少率
 som = train_som(som, df, n_epochs, learning_rate, learning_decay, sigma, sigma_decay)
 
@@ -138,7 +138,7 @@ df_som.to_csv(filename, index=False)
 
 #
 # ここまで
-#
+#　
 
 # %%
 df_som = pd.read_csv("som.csv")
