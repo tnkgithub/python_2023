@@ -23,7 +23,7 @@ df_min = np.min(df)
 # %%
 # 座標データの読み込み
 # vertex_df = pd.read_csv("geodesic_dome.csv")
-vertex_df = pd.read_csv("result_vertices/torus_43_46.csv")
+vertex_df = pd.read_csv("result_vertices/torus_34_59.csv")
 # vertex_df = pd.read_csv("geocentric_cartesian_coordinates.csv")
 vertex_df = vertex_df.values
 
@@ -115,10 +115,19 @@ print(len(neighborhood_unit))
 som = vertices
 n_epochs = 100  # エポック数
 learning_rate = 0.5  # 学習率
-learning_decay = 0.01  # 学習率の減少率
+learning_decay = 10  # 学習率の減少率
 sigma = 0.3  # 近傍半径の初期値
-sigma_decay = 0.1  # 近傍半径の減少率
+sigma_decay = 10  # 近傍半径の減少率
 som = train_som(som, df, n_epochs, learning_rate, learning_decay, sigma, sigma_decay)
+
+#%%
+learning_rate_0 = 0.5  # 学習率
+learning_rate_1 = learning_rate_0 * np.exp(-1 / 10)
+print(learning_rate_1)
+learning_rate_2 = learning_rate_0 * np.exp(-50 / 10)
+print(learning_rate_2)
+if learning_rate_1 > learning_rate_2:
+    print("True")
 
 # %%
 # somの結果をcsvに保存

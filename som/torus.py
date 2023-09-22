@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 # トーラスのパラメータ
 R = 1  # トーラスの中心から軸までの距離
 r = 0.3  # トーラスの断面円の半径
-theta_res = 43  # 断面円の分割数
-phi_res = 46  # 軸周りの分割数
+theta_res = 34  # 断面円の分割数
+phi_res = 59  # 軸周りの分割数
 
 # パラメータ値の生成
 theta = np.linspace(0, 2 * np.pi, theta_res)

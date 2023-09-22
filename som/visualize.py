@@ -4,7 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import cv2
 import os
-
 import datetime
 import csv
 
@@ -15,12 +14,12 @@ features = df_features.values
 
 
 # som結果の読み込み
-df_som = pd.read_csv("./result_som/som_torus_43_46_20230921_010424.csv", index_col=0)
+df_som = pd.read_csv("./result_som/som_torus_43_46_20230922_213922.csv", index_col=0)
 vertices = df_som.iloc[:, :3].values
 som = df_som.iloc[:, 2:].values
 
-m = 43 # 軸周りの分割数
-n = 46 # 断面円の分割数
+m = 34 # 軸周りの分割数
+n = 59 # 断面円の分割数
 
 #%%
 # cos類似度の計算
@@ -144,7 +143,7 @@ def resize_and_trim(img, width, height):
 #%%
 img_name = './result_image/result_SOM_image_torus_43_46_' + now.strftime('%Y%m%d_%H%M%S') + '.png'
 
-img_dir_path =   '/home/b1019035/python/gra_study/imagesSub/'
+img_dir_path =   '../scraping/images/'
 
 # 画像のパスを取得
 imgs_path = []
