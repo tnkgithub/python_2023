@@ -14,8 +14,11 @@ model = vit.vit_b16(
     pretrained_top=False,
 )
 
-img_dir_path = "/home/b1019035/python/gra_study/imagesSub"
-img_list = os.listdir(img_dir_path)
+#%%
+df = pd.read_csv("../scraping/result_metadata/metadata_poster.csv", index_col=0)
+img_list = df["6"].to_list()
+
+img_dir_path = "../scraping/images"
 
 # %%
 for_vstack = np.empty([0, 768])

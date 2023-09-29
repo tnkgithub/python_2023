@@ -53,17 +53,24 @@ for page in page_urls:
 
 # %%
 
-os.makedirs("./images", exist_ok=True)
+os.makedirs("../scraping/images", exist_ok=True)
 
 #%%
 for image in images_link_list:
     r = requests.get(image)
     time.sleep(1)
-    image_file =  open('./images/' + image.split('/')[-3] + image.split('/')[-1], mode='wb')
+    image_file =  open('./images/' + image.split('/')[-3] + ".jpg", mode='wb')
     image_file.write(r.content)
     image_file.close()
 
-files = os.listdir("./images")
+files = os.listdir("../scraping/images")
 print("画像の枚数：", len(files))
 
 #%%
+
+img_dir_path = "../scraping/images"
+img_list = os.listdir(img_dir_path)
+print(len(img_list))
+# %%
+print(img_list[1])
+# %%

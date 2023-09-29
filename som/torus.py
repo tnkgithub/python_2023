@@ -27,7 +27,7 @@ fig, ax = plt.subplots(
 )
 plt.gca().axis("off")
 ax.scatter(x, y, z, alpha=0.3)
-ax.set_aspect("equal")
+ax.set_aspect("auto")
 
 # グラフ表示
 plt.show()
@@ -39,7 +39,7 @@ plt.show()
 df = pd.DataFrame(
     np.array([x.flatten(), y.flatten(), z.flatten()]).T, columns=["x", "y", "z"]
 )
-df.to_csv("./result_vertices/torus_43_46.csv", index=False)
+df.to_csv("./result_vertices/torus_34_59.csv", index=False)
 
 
 # %%
