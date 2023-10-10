@@ -21,7 +21,7 @@ model = gensim.models.KeyedVectors.load_word2vec_format('./jawiki.all_vectors.30
 # ipa辞書を使う場合
 #tagger = mc.Tagger(ipadic.MECAB_ARGS)
 # uniDicを使う場合
-tagger = mc.Tagger("-Owakati -d /usr/lib/x86_64-linux-gnu/mecab/dic/unidic-lite")
+tagger = mc.Tagger("-Owakati -d /usr/lib/x86_64-linux-gnu/mecab/dic/")
 
 # %%  タイトルの分かち書き（Word2Vecのエエラーも）
 title_wakati = [] # 分かち書きしたタイトルを格納するリスト
@@ -43,11 +43,9 @@ for i, title in enumerate(titles):
         #if 36 <= node.posid <= 67:
             try:
                 model[node.surface]
-                print(node.surface)
                 title_wakati.append(node.surface)
             except:
                 title_wakati.append(node.surface + ": error")
-                print(node.surface + ": error")
         node = node.next
 
     if type(captions[i]) != float:
