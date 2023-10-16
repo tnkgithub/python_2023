@@ -17,11 +17,11 @@ model = gensim.models.KeyedVectors.load_word2vec_format('./jawiki.all_vectors.30
 
 # %%
 # 分かち書き用のTagger
-#tagger = mc.Tagger('-Owakati -d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd')
+tagger = mc.Tagger('-Owakati -d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd')
 # ipa辞書を使う場合
 #tagger = mc.Tagger(ipadic.MECAB_ARGS)
 # uniDicを使う場合
-tagger = mc.Tagger("-Owakati -d /usr/lib/x86_64-linux-gnu/mecab/dic/")
+#tagger = mc.Tagger("-Owakati -d /usr/lib/x86_64-linux-gnu/mecab/dic/")
 
 # %%  タイトルの分かち書き（Word2Vecのエエラーも）
 title_wakati = [] # 分かち書きしたタイトルを格納するリスト
@@ -54,6 +54,10 @@ for i, title in enumerate(titles):
         title_wakati.append("caption: " + "nan")
     title_wakati.append(" ")
 
+#%%
+
+
+#%%
 str_ = '\n'.join(title_wakati)
 fw = open('title_wakati_ipa.txt', 'w')
 fw.write(str_)
