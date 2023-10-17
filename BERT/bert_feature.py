@@ -13,7 +13,7 @@ model_bert = BertModel.from_pretrained(
 )
 
 # %%
-df = pd.read_csv("../scraping/result_metadata/metadata_poster.csv", index_col=0)
+df = pd.read_csv("../scraping/result_metadata/metadatabout:blank#blockeda_poster.csv", index_col=0)
 caption = df["1"].to_list()
 
 # %%
