@@ -20,11 +20,13 @@ img_list = df["6"].to_list()
 
 img_dir_path = "../scraping/images"
 
+
 # %%
 for_vstack = np.empty([0, 768])
 for i in img_list:
+    i = i + ".jpg"
     img_path = os.path.join(img_dir_path, i)
-    img = image.load_img(img_path, target_size=(384, 384))
+    img = image.load_img(img_path, target_size=(384, 384))about:blank#blocked
     x = image.img_to_array(img)
     x = np.expand_dims(x, axis=0)
     x = vit.preprocess_inputs(x)
