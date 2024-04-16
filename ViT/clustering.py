@@ -9,7 +9,13 @@ import datetime
 
 # %%
 df = pd.read_csv("./result_feature/feature_vit.csv", index_col=0)
-img_dir_path = "/home/b1019035/python/gra_study/imagesSub"
+# df = pd.read_csv("./result_feature_pca/resnet_pca.csv", index_col=0)
+# new_index = []
+# for i in range(len(df)):
+#     new_name = df.index[i].split("-")[0]
+#     new_name = new_name[:8]
+#     new_index.append(new_name)
+img_dir_path = "/home/b1019035/2023/python_2023/scraping/images"
 
 # %%
 pdist = pdist(df, metric="cosine")
@@ -18,11 +24,11 @@ plt.figure(figsize=(20, 10), num=None, dpi=80, facecolor="w", edgecolor="k")
 dendrogram(ward_cos, labels=df.index, leaf_font_size=8)
 
 # %%
-bucket = [0] * 1000  # クラスタ数、サイズが分からないので40としておく
+bucket = [0] * 2000  # クラスタ数、サイズが分からないので40としておく
 cluster_num = 0
 clusters_size = [0]
 
-fclusters = fcluster(ward_cos, 0.15, criterion="distance")
+fclusters = fcluster(ward_cos, 0.5, criterion="distance")
 
 # クラスターの数と各クラスターのサイズを求める
 for i in fclusters:
@@ -41,24 +47,27 @@ print(clusters_size)
 cluster_list = [[] for i in range(cluster_num + 1)]
 for i in range(len(fclusters)):
     img_path = os.path.join(img_dir_path, df.index[i])
+    img_path = img_path + ".jpg"
+    print(img_path)
     cluster_list[fclusters[i]].append(img_path)
 
-# %%
-# os.mkdir('./result_cluster_resnet')
+#%%
+os.mkdir('./result_cluster_vit_1.0')
 
 # %%
-m = 10
-n = 10
+m = 5
+n = 5
 imgs = [0] * m * n
 now = datetime.datetime.now()
 for clust_no in range(1, cluster_num):
     img_name = (
-        "./result_cluster_resnet/ward_cos_"
+        "./result_cluster_vit_1.0/ward_cos_"
         + str(clust_no)
+        + "_"
         + now.strftime("%Y%m%d_%H%M%S")
         + ".png"
     )
-    plt.figure(figsize=(10, 10), facecolor="w")
+    plt.figure(figsize=(30, 30), facecolor="w")
     plt.subplots_adjust(wspace=0, hspace=0)
     for i, name in zip(range(m * n), cluster_list[clust_no]):
         # 画像を読み込む
@@ -69,5 +78,6 @@ for clust_no in range(1, cluster_num):
         plt.axis("off")
         plt.imshow(imgs[i])
 
-    plt.show()
+    plt.savefig(img_name)
+
 # %%
