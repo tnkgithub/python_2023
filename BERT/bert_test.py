@@ -8,7 +8,7 @@ tokenizer = BertJapaneseTokenizer.from_pretrained(
     "cl-tohoku/bert-base-japanese-whole-word-masking"
 )
 model_bert = BertModel.from_pretrained(
-    "cl-tohoku/bert-base-japanese-whole-word-masking", output_hidden_states=True
+    "cl-tohoku/bert-base-japanese-whole-word-masking"
 )
 
 # %%
@@ -17,7 +17,7 @@ input_text = "今日はいい天気ですね。"
 input_ids = tokenizer.encode(input_text, add_special_tokens=True)
 tokens_tensor = torch.tensor(input_ids)
 
-# 隠れ層の出力を得る
+# 最終層の出力を得る
 with torch.no_grad():
     outputs = model_bert(tokens_tensor.unsqueeze(0))
 
