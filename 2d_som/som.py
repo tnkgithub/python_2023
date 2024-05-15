@@ -12,6 +12,7 @@ import scipy.spatial.distance as dis
 m = 59 #(横)
 n = 34 #(縦)
 
+#%%
 df = pd.read_csv('/home/b1019035/2023/python_2023/ViT/result/result_feature/feature_vit.csv', index_col=0)
 features = df.to_numpy()
 
@@ -77,55 +78,98 @@ def train_som(som, train_data, learn_rate=0.1, radius_sq=10, lr_decay=.1, rad_de
 
 #%%
 # SOMの初期化
-som = np.random.rand(n, m, features.shape[1])
-
+#som = np.random.rand(n, m, features.shape[1])
+som = np.random.rand(n*m, 768)
 
 # %%
 som = train_som(som, features, learn_rate=0.1, radius_sq=100, epochs=1000)
 
-
-
 #%%
 # 画像の生成
-list_som = som.reshape(m*n, features.shape[1])
+#list_som = som.reshape(m*n, features.shape[1])
+list_som = som.reshape(n*m, 768)
 map = [[-1] * m for _ in range(n)]
-features_index = [i for i in range(features.shape[0])]
+#features_index = [i for i in range(features.shape[0])]
+features_index = [i for i in range(2003)]
+features = np.random.rand(2003, 768)
 
 # どこにも配置されていない特徴量のインデックス
 not_placed_features_index = []
+placed_features_index = []
 
+
+#%%
+def som_to_map(list):
+
+    for i in list:
+        print("i", i)
+        similarity = [cos_similarity(features[i], list_som[j]) for j in range(len(list_som))]
+        #類似度とインデックスの２次元配列
+        similarity_index = [[similarity[j], j] for j in range(len(list_som))]
+        sorted_similarity_index = sorted(similarity_index, reverse=True)
+        # 2. 類似度が高い箇所に特徴量を配置
+        for sim, index in sorted_similarity_index:
+            print("sim", sim, "index", index)
+            if map[index // m][index % m] == -1:
+                map[index // m][index % m] = i
+                placed_features_index.append(i)
+                if i in not_placed_features_index:
+                    not_placed_features_index.remove(i)
+                print("new", index // m, index % m)
+                break
+            else:
+                if cos_similarity(features[map[index // m][index % m]], list_som[index]) < sim:
+                    placed_features_index.append(i)
+                    placed_features_index.remove(map[index // m][index % m])
+                    not_placed_features_index.append(map[index // m][index % m])
+                    map[index // m][index % m] = i
+                    print("replace", index // m, index % m)
+                    break
+                else:
+                    print("next", index // m, index % m)
+                    continue
+
+    print("not_placed_features_index_len", len(not_placed_features_index))
+    print(not_placed_features_index)
+
+    if len(not_placed_features_index) != 0:
+        som_to_map(not_placed_features_index)
+
+#%%
+som_to_map(features_index)
+
+#%%
 def som_to_gird():
 
-    for i in features_index[:]:
+    for i in range(2003):
+        print("i", i)
         # 1. som結果と特徴量の類似度を計算
         similarity = [cos_similarity(features[i], list_som[j]) for j in range(len(list_som))]
         #similarity = [dis.euclidean(features[i], list_som[j]) for j in range(len(list_som))]
-        # 2. 類似度が高い箇所に特徴量を配置
+
         max_similarity = max(similarity)
         max_index = similarity.index(max_similarity)
         # 3. もし、2ですでに特徴量が配置されていたら、類似度が高い方に書き換える。
-        if map[max_index // n][max_index % n] != -1:
-            # 類似度が高い方に書き換える
-            if max_similarity > cos_similarity(features[map[max_index // n][max_index % n]], list_som[max_index]):
-            #if max_similarity < dis.euclidean(features[map[max_index // n][max_index % n]], list_som[max_index]):
-                features_index.append(map[max_index // n][max_index % n])
-                map[max_index // n][max_index % n] = i
-                features_index.remove(i)
+        if map[max_index // m][max_index % m] != -1:
+            if max_similarity > cos_similarity(features[map[max_index // m][max_index % m]], list_som[max_index]):
+                placed_features_index.append(i)
+                placed_features_index.remove(map[max_index // m][max_index % m])
+                not_placed_features_index.append(map[max_index // m][max_index % m])
+                map[max_index // m][max_index % m] = i
+                print("replace", max_index // m, max_index % m)
             else:
-                if i not in not_placed_features_index:
-                    not_placed_features_index.append(i)
-                features_index.remove(i)
+                print("still exist", max_index // m, max_index % m)
+                not_placed_features_index.append(i)
+        # 2. 類似度が高い箇所に特徴量を配置
         else:
-            map[max_index // n][max_index % n] = i
-            features_index.remove(i)
+            map[max_index // m][max_index % m] = i
+            placed_features_index.append(i)
+            print("new", max_index // m, max_index % m)
 
-
-    print(len(features_index))
-    if len(features_index) != 0:
-        som_to_gird()
-
-    print(len(not_placed_features_index))
-    # まだ配置されていない特徴量がある場合
+    print("not_placed_features_index_len", len(not_placed_features_index))
+    print(not_placed_features_index)
+    if len(not_placed_features_index) != 0:
+        som_to_gird(not_placed_features_index)
 
 #%%
 def som_to_gird2(max_similarity=0.3):
@@ -136,6 +180,7 @@ def som_to_gird2(max_similarity=0.3):
         for i in not_placed_features_index:
             max_x = 1000
             max_y = 1000
+            max_similarity = tmp_similarity
             for x in range(n):
                 for y in range(m):
                     if map[x][y] == -1:
@@ -147,15 +192,17 @@ def som_to_gird2(max_similarity=0.3):
                             max_y = y
 
             if max_x != 1000 and max_y != 1000:
+                print("new", max_x, max_y, "i", i)
                 map[max_x][max_y] = i
                 not_placed_features_index.remove(i)
 
-    if len(not_placed_features_index) == 0:
-        return
-    else:
         print(len(not_placed_features_index))
-        max_similarity = tmp_similarity - 0.1
+        max_similarity = round(tmp_similarity - 0.1, 2)
         som_to_gird2(max_similarity)
+
+    else:
+        return
+
 
 # %%
 som_to_gird()
