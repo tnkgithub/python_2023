@@ -15,3 +15,9 @@ GiNZA/
 jawiki.all_vectors.300d.txt
 title_wakati
 rep_image_som_result_40-60_20230224_112013.csv
+result_image/
+result_som_csv/
+result_som_image/
+ViT/result/
+scraping_postcard/
+calc_result/

@@ -86,5 +86,5 @@ for i in range(len(material_urls)):
         df = pd.concat([df, tmp_df], axis=0)
 
 os.makedirs("./result_metadata", exist_ok=True)
-df.to_csv("./result_metadata/metadata_poster.csv", index=False)
+df.to_csv("../som/result_metadata/metadata_poster.csv", index=False)
 # %%
