@@ -3,7 +3,7 @@ import MeCab as mc
 import numpy as np
 import pandas as pd
 import gensim
-import ipadic
+#import ipadic
 
 #%%
 # データの読み込み

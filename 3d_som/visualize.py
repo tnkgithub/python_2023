@@ -1,4 +1,4 @@
-# %%
+#%%
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -149,6 +149,8 @@ img_name = '../som/result_image/result_SOM_image_torus_34_59_' + now.strftime('%
 
 img_dir_path =   '../scraping/images/'
 
+#%%
+
 # 画像のパスを取得
 imgs_path = []
 img_list = os.listdir(img_dir_path)
@@ -166,6 +168,41 @@ for i, no in zip(range(m*n), img_no):
     if no != -1:
         # 画像を読み込む
         imgs[i] = cv2.imread(imgs_path[no])
+        imgs[i] = cv2.cvtColor(imgs[i], cv2.COLOR_BGR2RGB)
+        #imgs[i] = resize_and_trim(imgs[i], 100, 162)
+        plt.subplot(m, n, i+1)
+        plt.subplots_adjust(hspace=0.0)
+        plt.axis("off")
+        plt.imshow(imgs[i])
+
+
+plt.savefig(img_name)
+
+
+# %%
+img_name = '../som/digital_archive_image.png'
+imgs_dir_path =   '../scraping/images/'
+
+img_list = pd.read_csv('../som/image_som_result20230110_073816.csv', index_col=0)
+img_list = img_list.index.tolist()
+
+#%%
+print(len(img_list))
+
+#%%
+m = 28
+n = 66
+
+# 画像のサイズ、背景を設定
+plt.figure(figsize=(50,35), facecolor='w')
+plt.subplots_adjust(wspace=0, hspace=0)
+
+'''画像を読み込み、タイル状に出力'''
+imgs = [0] * m * n
+for i, no in zip(range(m*n), img_list):
+    if no != '1':
+        # 画像を読み込む
+        imgs[i] = cv2.imread(imgs_dir_path + no[:8] + '.jpg')
         imgs[i] = cv2.cvtColor(imgs[i], cv2.COLOR_BGR2RGB)
         #imgs[i] = resize_and_trim(imgs[i], 100, 162)
         plt.subplot(m, n, i+1)
