@@ -4,6 +4,9 @@ import os
 from keras.preprocessing import image
 import numpy as np
 import pandas as pd
+import sys
+
+
 
 # %%
 model = vit.vit_b16(
@@ -15,16 +18,20 @@ model = vit.vit_b16(
 )
 
 #%%
-df = pd.read_csv("../scraping/metadata_sub/metadata_poster.csv", index_col=0)
-img_list = df["6"].to_list()
+# df = pd.read_csv("/home/b1019035/dev/theme-app/web/public/posters/normalPoster", index_col=0)
+# img_list = df["6"].to_list()
 
-img_dir_path = "../scraping/images"
+# img_dir_path = "../scraping/images"
+
+img_dir_path = "/home/b1019035/dev/theme-app/web/public/posters/normalPoster"
+img_list = os.listdir(img_dir_path)
 
 
 # %%
 for_vstack = np.empty([0, 768])
 for i in img_list:
-    i = i + ".jpg"
+    # i = i + ".jpg"
+    # img_path = os.path.join(img_dir_path, i)
     img_path = os.path.join(img_dir_path, i)
     img = image.load_img(img_path, target_size=(384, 384))
     x = image.img_to_array(img)
@@ -35,9 +42,9 @@ for i in img_list:
     for_vstack = np.vstack((for_vstack, flatten_features))
 
 # %%
-# os.mkdir('./result_feature')
+os.mkdir('../ViT/result_feature')
 
 # %%
 df = pd.DataFrame(for_vstack, index=img_list)
-df.to_csv("../ViT/result_feature/feature_vit.csv")
+df.to_csv("../ViT/result_feature/feature_vit_normal.csv")
 # %%
