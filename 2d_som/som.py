@@ -6,11 +6,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
 import csv
-import scipy.spatial.distance as dis
+from scipy.spatial.distance import cosine, euclidean
 
 #%%
 m = 59 #(横)
 n = 34 #(縦)
+np.random.seed(1)
 
 #%%
 df = pd.read_csv('/home/b1019035/2023/python_2023/ViT/result/result_feature/feature_vit.csv', index_col=0)
@@ -21,9 +22,10 @@ print(features)
 
 #%%
 def cos_similarity(v1, v2):
-    return 1 - dis.cosine(v1, v2)
+    return 1 - cosine(v1, v2)
 
-
+def euclidean_distance(v1, v2):
+    return euclidean(v1, v2)
 
 def find_bmu(som, ex_data):
     # 計算結果を格納する配列
@@ -31,8 +33,8 @@ def find_bmu(som, ex_data):
     # 類似度計算
     for x in range(som.shape[0]):
         for y in range(som.shape[1]):
-            tmp[x, y] = cos_similarity(som[x, y], ex_data)
-            #tmp[x, y] = dis.euclidean(som[x, y], ex_data)
+            #tmp[x, y] = cos_similarity(som[x, y], ex_data)
+            tmp[x, y] = euclidean(som[x, y], ex_data)
 
     # 類似度が最大のユニットの座標を返す
     return np.unravel_index(np.argmax(tmp, axis=None), tmp.shape)
@@ -78,20 +80,17 @@ def train_som(som, train_data, learn_rate=0.1, radius_sq=10, lr_decay=.1, rad_de
 
 #%%
 # SOMの初期化
-#som = np.random.rand(n, m, features.shape[1])
-som = np.random.rand(n*m, 768)
+som = np.random.rand(n, m, features.shape[1])
 
 # %%
-som = train_som(som, features, learn_rate=0.1, radius_sq=100, epochs=1000)
+som = train_som(som, features, learn_rate=0.5, lr_decay=0.1, radius_sq=2500, rad_decay=0.001, epochs=5000)
 
 #%%
 # 画像の生成
-#list_som = som.reshape(m*n, features.shape[1])
-list_som = som.reshape(n*m, 768)
-map = [[-1] * m for _ in range(n)]
-#features_index = [i for i in range(features.shape[0])]
-features_index = [i for i in range(2003)]
-features = np.random.rand(2003, 768)
+list_som = som.reshape(m*n, features.shape[1])
+map = [-1] * (m*n)
+features_index = [i for i in range(features.shape[0])]
+
 
 # どこにも配置されていない特徴量のインデックス
 not_placed_features_index = []
@@ -107,25 +106,23 @@ def som_to_map(list):
         sorted_similarity_index = sorted(similarity_index, reverse=True)
         # 2. 類似度が高い箇所に特徴量を配置
         for sim, index in sorted_similarity_index:
-            print("sim", sim, "index", index)
-            if map[index // m][index % m] == -1:
-                map[index // m][index % m] = i
-                placed_features_index.append(i)
+            if map[index] == -1:
+                map[index] = i
                 if i in not_placed_features_index:
                     not_placed_features_index.remove(i)
                 break
             else:
-                if cos_similarity(features[map[index // m][index % m]], list_som[index]) < sim:
-                    placed_features_index.append(i)
-                    placed_features_index.remove(map[index // m][index % m])
-                    not_placed_features_index.append(map[index // m][index % m])
-                    map[index // m][index % m] = i
-                    print("replace", index // m, index % m)
+                if cos_similarity(features[map[index]], list_som[index]) < sim:
+                    not_placed_features_index.append(map[index])
+                    if i in not_placed_features_index:
+                        not_placed_features_index.remove(i)
+                    map[index] = i
                     break
                 else:
                     continue
 
     if len(not_placed_features_index) != 0:
+        print(len(not_placed_features_index))
         som_to_map(not_placed_features_index)
 
 #%%
@@ -142,10 +139,10 @@ os.makedirs('../2d_som/result_som_csv/', exist_ok=True)
 
 filename = '../2d_som/result_som_csv/result_' + now.strftime('%Y%m%d_%H%M%S') + '.csv'
 
-f = open(filename, 'w')
-writer = csv.writer(f)
-writer.writerow(img_no)
-f.close()
+for i in map:
+    with open(filename, 'a') as f:
+        writer = csv.writer(f)
+        writer.writerow([i])
 
 
 #%%
@@ -157,9 +154,13 @@ img_dir_path =   '../scraping/images/'
 
 # 画像のパスを取得
 imgs_path = []
-img_list = os.listdir(img_dir_path)
+img_list = df.index.tolist()
 for i in img_list:
-    imgs_path.append(img_dir_path + i)
+    imgs_path.append(img_dir_path + i + '.jpg')
+
+print(imgs_path)
+
+#%%
 
 
 # 画像のサイズ、背景を設定
@@ -168,7 +169,7 @@ plt.subplots_adjust(wspace=0, hspace=0)
 
 '''画像を読み込み、タイル状に出力'''
 imgs = [0] * m * n
-for i, no in zip(range(m*n), img_no):
+for i, no in zip(range(m*n), map):
     if no != -1:
         # 画像を読み込む
         imgs[i] = cv2.imread(imgs_path[no])
@@ -181,3 +182,5 @@ for i, no in zip(range(m*n), img_no):
 
 
 plt.savefig(img_name)
+
+# %%
