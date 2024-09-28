@@ -21,4 +21,10 @@ result_som_image/
 ViT/result/
 scraping_postcard/
 calc_result/
+<<<<<<< HEAD
 ViT/
+=======
+result_map/
+result_weight/
+result_som_image/
+>>>>>>> refs/remotes/origin/main
