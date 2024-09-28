@@ -10,7 +10,7 @@ df = pd.read_csv('/home/sumthen/2023/python_2023/word2vec/calc_result/jawiki_sum
 stack = np.stack(df.values)
 # %%
 print(stack.shape)
-df["new"] = df['1'].progress_apply(lambda x: np.stack(x), axis=1)
+df["new"] = df['1'].progress_apply(lambda x: np.stack(x))
 
 
 # %%
