@@ -68,7 +68,7 @@ for i in material_nums:
     metadata = soup.find('div', class_="bg-white mt-10 px-2 md:px-6 lg:px-32 py-6")
 
     # メタデータの整形
-    title = title.text.replace("\n", "").replace(" ", "").replace(",", "、").replace("\r", "、")
+    title = title.text.replace("\n", "").replace("  ", "").replace(",", "、").replace("\r", "、")
     text = ''.join(metadata.text.splitlines())
     text = text.replace(" ", "").replace(",", "、").replace("　", "、")
     # text = metadata.text.replace("\n", "").replace(" ", "").replace(",", "、").replace("\r", "、")
@@ -81,7 +81,7 @@ for i in material_nums:
 print(material_metadata)
 #%%
 import csv
-with open("/home/b1019035/2023/python_2023/scraping/_metadata_2026.csv", "w") as f:
+with open("/home/b1019035/2023/python_2023/scraping/_metadata_2026_space.csv", "w") as f:
     writer = csv.writer(f)
     writer.writerows(material_metadata)
 

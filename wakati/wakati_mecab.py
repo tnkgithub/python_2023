@@ -7,9 +7,15 @@ import gensim
 
 #%%
 # データの読み込み
-df = pd.read_csv("/home/b1019035/2023/python_2023/scraping/metadata_2026.csv", index_col=0, header=None)
+df = pd.read_csv("/home/sumthen/2023/python_2023/wakati/wakati_2026/wakati_title_sudachi_A_space.csv", index_col=0, header=0)
+print(df)
 index = df.index.to_list()
-titles = df[1].to_list()
+print(index)
+titles = df['title'].to_list()
+
+#%%
+print(titles)
+
 
 #%%
 # モデルの読み込み
