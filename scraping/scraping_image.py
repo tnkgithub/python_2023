@@ -6,33 +6,30 @@ import os
 
 #%%
 # 取得したいサイトのURL
-main_url = "http://archives.c.fun.ac.jp/fronts/index/poster"
+main_url = "https://archives.c.fun.ac.jp/posters"
 
-# リンクを呼び出す
 r = requests.get(main_url)
-time.sleep(1)
-
-# サイト内の情報をすべて取得
+time.sleep(0.5)
 soup = BeautifulSoup(r.text, "html.parser")
-# ページ遷移クラスの取得
-page_nation = soup.find(class_="pagination")
-# ページ遷移クラス内の"a"タグを取得
-page_num = page_nation.find_all("a")
-
-pages = []
-# "a"タグ内のページ番号を取得
-for i in page_num:
-    pages.append(i.text)
-
+# エリアラベルの取得
+page_nation = soup.find_all('nav', attrs={'aria-label': 'pager'})
 
 #%%
+# ページ数の取得
+pages = []
+for i in page_nation:
+    a = i.find_all('a')
+    for j in a:
+        pages.append(j.text)
+
+# %%
 # 最後のページ番号
-last_page = int(pages[-3])
+last_page = int(pages[-2])
 
 # 全ページのURLをリストに加える
 page_urls = []
 for i in range(1, last_page + 1):
-    url = "http://archives.c.fun.ac.jp/fronts/index/poster/page:{}".format(i)
+    url = os.path.join(main_url, "?page={}".format(i))
     page_urls.append(url)
 
 
@@ -53,7 +50,7 @@ for page in page_urls:
 
 # %%
 
-os.makedirs("../scraping/images", exist_ok=True)
+os.makedirs("/home/sumthen/2023/python_2023/scraping/images_2026", exist_ok=True)
 
 #%%
 for image in images_link_list:
@@ -68,7 +65,7 @@ print("画像の枚数：", len(files))
 
 #%%
 
-img_dir_path = "../scraping/images"
+img_dir_path = "/home/sumthen/2023/python_2023/scraping/images_2026"
 img_list = os.listdir(img_dir_path)
 print(len(img_list))
 # %%

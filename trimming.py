@@ -3,7 +3,7 @@ import os
 import cv2
 
 #%%
-img_dir_path =   '/home/sumthen/dev/theme-app/web/public/posters/normalPoster'
+img_dir_path =   '/home/sumthen//2024/python-2024/exist_poster'
 img_name = os.listdir(img_dir_path)
 
 #%%
@@ -31,12 +31,12 @@ def resize_and_trim(img, width, height):
 
 
 #%%
-trimmed_img_dir_path = '/home/sumthen/dev/theme-app/web/public/posters/trimmedPoster'
+trimmed_img_dir_path = '/home/sumthen/dev/theme-app/web/public/posters/'
 os.makedirs(trimmed_img_dir_path, exist_ok=True)
 
 for i in img_name:
     img = cv2.imread(img_dir_path + '/' + i)
-    img = resize_and_trim(img, 100, 162)
+    img = resize_and_trim(img, 100, 141)
     cv2.imwrite(trimmed_img_dir_path + '/' + i, img)
 
 # %%
